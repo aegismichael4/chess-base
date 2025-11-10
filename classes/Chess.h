@@ -41,6 +41,7 @@ public:
 
 private:
     Bit* PieceForPlayer(const int playerNumber, ChessPiece piece);
+    void CreatePieceAt(int position, const int playerNumber, ChessPiece piece);
     Player* ownerAt(int x, int y) const;
     void FENtoBoard(const std::string& fen);
     char pieceNotation(int x, int y) const;

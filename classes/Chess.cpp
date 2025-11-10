@@ -1,6 +1,8 @@
 #include "Chess.h"
+#include "Logger.h"
 #include <limits>
 #include <cmath>
+#include <cctype>
 
 Chess::Chess()
 {
@@ -26,6 +28,11 @@ char Chess::pieceNotation(int x, int y) const
 
 Bit* Chess::PieceForPlayer(const int playerNumber, ChessPiece piece)
 {
+    if (piece == 0) {
+        Logger::GetInstance().LogError("Chess piece not assigned");
+        return nullptr;
+    }
+
     const char* pieces[] = { "pawn.png", "knight.png", "bishop.png", "rook.png", "queen.png", "king.png" };
 
     Bit* bit = new Bit();
@@ -45,9 +52,9 @@ void Chess::setUpBoard()
     _gameOptions.rowX = 8;
     _gameOptions.rowY = 8;
 
-    _grid->initializeChessSquares(pieceSize, "boardsquare.png");
+    _grid->initializeSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-
+    
     startGame();
 }
 
@@ -61,6 +68,60 @@ void Chess::FENtoBoard(const std::string& fen) {
     // 3: castling availability (KQkq or -)
     // 4: en passant target square (in algebraic notation, or -)
     // 5: halfmove clock (number of halfmoves since the last capture or pawn advance)
+
+    int boardPos = 0;
+    
+    for (int i = 0; i < fen.length(); i++) {
+
+        char c = fen[i];
+        if (c == '/') continue; // end of row
+
+        int ascii = int(c);
+        if (ascii >= 48 && ascii <= 57) { // NUMBER
+
+            boardPos += ascii - 48; //  char '1' should add 1 to board position, '6' should add 6, etc.
+            continue;
+
+        } else { // LETTER
+            
+            //Logger::GetInstance().LogInfo(isupper(c) ? "true" : "false");
+
+            ChessPiece piece = NoPiece;
+            switch (ascii % 32) {
+
+                case 2:
+                    piece = Bishop;
+                    break;
+                case 11:
+                    piece = King;
+                    break;
+                case 14:
+                    piece = Knight;
+                    break;
+                case 16:
+                    piece = Pawn;
+                    break;
+                case 17:
+                    piece = Queen;
+                    break;
+                case 18:
+                    piece = Rook;
+                    break;
+            }
+            int playerNum = !isupper(c);
+            CreatePieceAt(boardPos, playerNum, piece);
+            boardPos++;
+        }
+    }
+}
+
+void Chess::CreatePieceAt(int position, const int playerNumber, ChessPiece piece) {
+
+    Bit* newBit = PieceForPlayer(playerNumber, piece);
+    BitHolder* holder = _grid->getSquare(position % 8, position / 8);
+
+    newBit->setPosition(holder->getPosition());
+    holder->setBit(newBit);
 }
 
 bool Chess::actionForEmptyHolder(BitHolder &holder)

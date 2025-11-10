@@ -5,6 +5,7 @@
 #include "classes/Othello.h"
 #include "classes/Connect4.h"
 #include "classes/Chess.h"
+#include "classes/Logger.h"
 
 namespace ClassGame {
         //
@@ -21,6 +22,8 @@ namespace ClassGame {
         void GameStartUp() 
         {
             game = nullptr;
+
+            Logger::GetInstance().LogInfo("game starting...");
         }
 
         //
@@ -32,6 +35,8 @@ namespace ClassGame {
                 ImGui::DockSpaceOverViewport();
 
                 //ImGui::ShowDemoWindow();
+
+                Logger::GetInstance().RenderGame();
 
                 ImGui::Begin("Settings");
 
