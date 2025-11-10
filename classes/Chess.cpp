@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cctype>
 
+// test git ignore
+
 Chess::Chess()
 {
     _grid = new Grid(8, 8);
