@@ -296,29 +296,38 @@ std::vector<BitMove> Chess::generateAllMoves() {
     std::vector<BitMove> moves;
     moves.reserve(32);
     std::string state = stateString();
+    const char *stateChar = state.c_str();
+
+    int currPlayer = getCurrentPlayer()->playerNumber();
 
     for (int i = 0; i < 64; i++) {
+
+        char piece = state[i];
+        if (piece == '0' || piece / 32 - 2 != currPlayer) continue;
+
         switch (state[i]) {
             case 'K':
-                generateKingMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
+                generateKingMoves(stateChar, moves, i / 8, i % 8, WHITE);
                 break;
             case 'k':
-                generateKingMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
+                generateKingMoves(stateChar, moves, i / 8, i % 8, BLACK);
                 break;
             case 'N':
-                generateKnightMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
+                generateKnightMoves(stateChar, moves, i / 8, i % 8, WHITE);
                 break;
             case 'n':
-                generateKnightMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
+                generateKnightMoves(stateChar, moves, i / 8, i % 8, BLACK);
                 break;
             case 'P':
-                generatePawnMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
+                generatePawnMoves(stateChar, moves, i / 8, i % 8, WHITE);
                 break;
             case 'p':
-                generatePawnMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
+                generatePawnMoves(stateChar, moves, i / 8, i % 8, BLACK);
                 break;
         }
     }
+
+    Log("available moves: " + std::to_string(moves.size()));
 
     return moves;
 }
