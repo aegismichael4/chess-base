@@ -34,6 +34,7 @@ public:
     std::string stateString() override;
     void setStateString(const std::string &s) override;
     char stateNotation(const char *state, int row, int col);
+    int intNotation(const char *state, int row, int col);
 
     Grid* getGrid() override { return _grid; }
 
@@ -61,5 +62,5 @@ private:
 
     // test functions
     void TestStateNotation();
-    
+
 };

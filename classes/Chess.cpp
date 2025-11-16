@@ -28,7 +28,7 @@ void Chess::TestStateNotation() {
     std::string state = stateString();
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            result += stateNotation(state.c_str(), i, j);
+            result += std::to_string(intNotation(state.c_str(), i, j));
         }
         result += ' ';
     }
@@ -78,6 +78,8 @@ void Chess::setUpBoard()
 
     _grid->initializeSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+    TestStateNotation();
     
     _moves = generateAllMoves();
 
@@ -267,6 +269,11 @@ char Chess::stateNotation(const char *state, int row, int col) {
     return (state[index] / 32) + 47;
 }
 
+int Chess::intNotation(const char *state, int row, int col) {
+    int index = row * 8 + col;
+    return (state[index] / 32) - 1;
+}
+
 #pragma endregion
 
 void Chess::addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece) {
@@ -301,7 +308,7 @@ std::vector<BitMove> Chess::generateAllMoves() {
 
 void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
 
-    Log("row: " + std::to_string(row) + ", col: " + std::to_string(col));
+    //Log("row: " + std::to_string(row) + ", col: " + std::to_string(col));
 
     const int direction = (colorAsInt == WHITE) ? -1 : 1;
     const int startRow = (colorAsInt == WHITE) ? 6 : 1;
@@ -319,11 +326,12 @@ void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, in
     // captures
     for (int i = -1; i <= 1; i += 2) { // -1 for leftmoves, +1 for right
         if (col + i >= 0 && col + i < 8) {
-            int oppositeColor = (colorAsInt == 0) ? 1 : -1;
-            int pieceColor = stateNotation(state, row + direction, col + i) >= 'a' ? BLACK : WHITE;
-            if (pieceColor == oppositeColor) {
+
+            int pieceColor = intNotation(state, row + direction, col + i) - 1;
+            if (pieceColor >= 0 && pieceColor != colorAsInt) {
                 addMoveIfValid(state, moves, row, col, row + direction, col + i, Pawn);
             }
+        
         } 
     }
 }
