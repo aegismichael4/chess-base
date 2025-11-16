@@ -43,6 +43,7 @@ public:
     std::vector<BitMove> generateAllMoves();
     void generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares);
     void generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
+    void generateKnightMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
 
     void findDropTarget(ImVec2 &pos) override;
     void clearBoardHighlights() override;

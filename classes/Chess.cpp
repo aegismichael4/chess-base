@@ -292,14 +292,18 @@ std::vector<BitMove> Chess::generateAllMoves() {
 
     for (int i = 0; i < 64; i++) {
         switch (state[i]) {
+            case 'N':
+                generateKnightMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
+                break;
+            case 'n':
+                generateKnightMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
+                break;
             case 'P':
                 generatePawnMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
                 break;
             case 'p':
                 generatePawnMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
                 break;
-
-
         }
     }
 
@@ -333,6 +337,26 @@ void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, in
             }
         
         } 
+    }
+}
+
+void Chess::generateKnightMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
+    static const int knightMoves[8][2] = { {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, -2}, {-2, -1}, {-1, 2}, {-2, 1} };
+
+    for (int i = 0; i < 8; i++) {
+
+        int rowDelta = knightMoves[i][0];
+        int colDelta = knightMoves[i][1];
+
+        if (row + rowDelta >= 0 && row + rowDelta < 8 && col + colDelta >= 0 && col + colDelta < 8) { // move is inside chessboard
+
+            int pieceColor = intNotation(state, row + rowDelta, col + colDelta) - 1; // -1 = empty, 0 = WHITE, 1 = BLACK
+        
+            if (pieceColor != colorAsInt) { // valid, empty square or occupied by opponent square
+                addMoveIfValid(state, moves, row, col, row + rowDelta, col + colDelta, Knight);
+            }
+
+        }
     }
 }
 
