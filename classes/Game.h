@@ -141,7 +141,7 @@ protected:
 	void mouseDown(ImVec2 &location, Entity *bit);
 	void mouseMoved(ImVec2 &location, Entity *bit);
 	void mouseUp(ImVec2 &location, Entity *bit);
-	void findDropTarget(ImVec2 &pos);
+	virtual void findDropTarget(ImVec2 &pos);
 
 	ImVec2 _dragStartPos;
 	ImVec2 _dragOffset;

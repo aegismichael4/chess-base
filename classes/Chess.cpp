@@ -4,8 +4,6 @@
 #include <cmath>
 #include <cctype>
 
-// test git ignore
-
 Chess::Chess()
 {
     _grid = new Grid(8, 8);
@@ -19,6 +17,8 @@ Chess::~Chess()
 void Log(std::string info) {
     Logger::GetInstance().LogInfo(info);
 }
+
+#pragma region TESTS
 
 void Chess::TestStateNotation() {
 
@@ -35,6 +35,8 @@ void Chess::TestStateNotation() {
 
     Log(result);
 }
+
+#pragma endregion
 
 char Chess::pieceNotation(int x, int y) const
 {
@@ -78,8 +80,6 @@ void Chess::setUpBoard()
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     
     _moves = generateAllMoves();
-
-    TestStateNotation();
 
     startGame();
 }
@@ -197,6 +197,11 @@ bool Chess::canBitMoveFromTo(Bit &bit, BitHolder &src, BitHolder &dst)
     return false;
 }
 
+void Chess::endTurn() {
+    Game::endTurn();
+    _moves = generateAllMoves();
+}
+
 void Chess::stopGame()
 {
     _grid->forEachSquare([](ChessSquare* square, int x, int y) {
@@ -278,41 +283,25 @@ std::vector<BitMove> Chess::generateAllMoves() {
     moves.reserve(32);
     std::string state = stateString();
 
-    uint64_t whiteKnights = 0LL;
-    uint64_t whitePawns = 0LL;
-
     for (int i = 0; i < 64; i++) {
         switch (state[i]) {
             case 'P':
-                generatePawnMoves(state.c_str(), moves, i / 8, i % 7, WHITE);
+                generatePawnMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
                 break;
             case 'p':
-                generatePawnMoves(state.c_str(), moves, i / 8, i % 7, BLACK);
+                generatePawnMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
                 break;
 
 
         }
     }
 
-    //uint64_t occupancy = whiteKnights | whitePawns;
-    //generateKnightMoves(moves, whiteKnights, ~occupancy);
-    //generatePawnMoveList(moves, whitePawns, ~occupancy, 1ULL<<17; WHITE);
-
     return moves;
 }
 
-/*
-void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares) {
-    knightBoard.forEachBit([&](int fromSquare)) {
-        BitBoard moveBitboard = BitBoard(_knightBitboards[fromSquare].getData() & emptySquares); 
-        moveBitboard.forEachBit([&](int toSquare)) {
-            moves.emplace_back(fromSquare, toSquare, Knight);
-        });
-    });
-}
-*/
-
 void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
+
+    Log("row: " + std::to_string(row) + ", col: " + std::to_string(col));
 
     const int direction = (colorAsInt == WHITE) ? -1 : 1;
     const int startRow = (colorAsInt == WHITE) ? 6 : 1;
@@ -338,3 +327,34 @@ void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, in
         } 
     }
 }
+
+// same as base class, except valid positions don't un-highlight when you drag piece off of them
+void Chess::findDropTarget(ImVec2 &pos)
+{
+	Grid* grid = getGrid();
+	grid->forEachEnabledSquare([&](ChessSquare* square, int x, int y) {
+		if (square == _oldHolder)
+		{
+			return;
+		}
+		if (square->isMouseOver(pos))
+		{
+			if (_dropTarget && square != _dropTarget)
+			{
+				_dropTarget->willNotDropBit(_dragBit);
+				//_dropTarget->setHighlighted(false);
+				_dropTarget = nullptr;
+			}
+			if (_oldHolder && square->canDropBitAtPoint(_dragBit, pos) && canBitMoveFromTo(*_dragBit, *_oldHolder, *square))
+			{
+				_dropTarget = square;
+				_dropTarget->setHighlighted(true);
+			}
+		}
+	});
+}
+
+void Chess::clearBoardHighlights() {
+    _grid->forEachSquare([](ChessSquare* square, int x, int y) {
+        square->setHighlighted(false);
+    });}

@@ -21,7 +21,9 @@ public:
 
     bool canBitMoveFrom(Bit &bit, BitHolder &src) override;
     bool canBitMoveFromTo(Bit &bit, BitHolder &src, BitHolder &dst) override;
+   // void bitMovedFromTo(Bit &bit, BitHolder &src, BitHolder &dst) override;
     bool actionForEmptyHolder(BitHolder &holder) override;
+    void endTurn() override;
 
     void stopGame() override;
 
@@ -41,6 +43,8 @@ public:
     void generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares);
     void generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
 
+    void findDropTarget(ImVec2 &pos) override;
+    void clearBoardHighlights() override;
 
 private:
     Bit* PieceForPlayer(const int playerNumber, ChessPiece piece);
@@ -57,4 +61,5 @@ private:
 
     // test functions
     void TestStateNotation();
+    
 };
