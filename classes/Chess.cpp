@@ -16,6 +16,10 @@ Chess::~Chess()
     delete _grid;
 }
 
+void Log(std::string info) {
+    Logger::GetInstance().LogInfo(info);
+}
+
 char Chess::pieceNotation(int x, int y) const
 {
     const char *wpieces = { "0PNBRQK" };
@@ -57,6 +61,8 @@ void Chess::setUpBoard()
     _grid->initializeSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     
+    generateAllMoves();
+
     startGame();
 }
 
@@ -202,3 +208,38 @@ void Chess::setStateString(const std::string &s)
         }
     });
 }
+
+std::vector<BitMove> Chess::generateAllMoves() {
+
+    std::vector<BitMove> moves;
+    moves.reserve(32);
+    std::string state = stateString();
+
+    Log(stateString);
+
+    uint64_t whiteKnights = 0LL;
+    uint64_t whitePawns = 0LL;
+
+    for (int i = 0; i < 64; i++) {
+        if (state[i] == 'N') {
+            whiteKnights |= 1ULL << i;
+        } else if (state[i] == 'P') {
+            whitePawns |= 1ULL << i;
+        }
+    }
+
+    uint64_t occupancy = whiteKnights | whitePawns;
+    generateKnightMoves(moves, whiteKnights, ~occupancy);
+    //generatePawnMoveList(moves, whitePawns, ~occupancy, 1ULL<<17; WHITE);
+
+    return moves;
+}
+
+void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares) {
+    knightBoard.forEachBit([&](int fromSquare)) {
+        BitBoard moveBitboard = BitBoard(_knightBitboards[fromSquare].getData() & emptySquares); 
+        moveBitboard.forEachBit([&](int toSquare)) {
+            moves.emplace_back(fromSquare, toSquare, Knight);
+        });
+    });
+}  

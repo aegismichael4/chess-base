@@ -1,2 +1,3 @@
 test
 [info] game starting...
+[info] test
