@@ -32,6 +32,8 @@ public:
 
     Grid* getGrid() override { return _grid; }
 
+    void addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece);
+
     std::vector<BitMove> generateAllMoves();
     void generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares);
 
