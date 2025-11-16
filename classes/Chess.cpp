@@ -165,18 +165,36 @@ bool Chess::canBitMoveFrom(Bit &bit, BitHolder &src)
     int pieceColor = bit.gameTag() & 128;
     if (pieceColor != currentPlayer) return false;
 
+    bool result = false;
     ChessSquare *square = (ChessSquare*)&src;
     if (square) {
         int index = square->getSquareIndex();
-
+        for (auto move : _moves) {
+            if (move.from == index) { // found a move this piece can do
+                auto dest = _grid->getSquareByIndex(move.to);
+                dest->setHighlighted(true);
+                result = true; // don't return yet so we can highlight other found spaces
+            }
+        }
     }
 
-    return true;
+    return result;
 }
 
 bool Chess::canBitMoveFromTo(Bit &bit, BitHolder &src, BitHolder &dst)
 {
-    return true;
+    ChessSquare* srcSquare = (ChessSquare*)&src;
+    ChessSquare* dstSquare = (ChessSquare*)&dst;
+
+    if (srcSquare && dstSquare) {
+        int srcIndex = srcSquare->getSquareIndex();
+        for (auto move : _moves) {
+            if (move.from == srcIndex && move.to == dstSquare->getSquareIndex()) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void Chess::stopGame()
@@ -260,17 +278,19 @@ std::vector<BitMove> Chess::generateAllMoves() {
     moves.reserve(32);
     std::string state = stateString();
 
-    Log("state: " + state);
-
     uint64_t whiteKnights = 0LL;
     uint64_t whitePawns = 0LL;
 
     for (int i = 0; i < 64; i++) {
-        if (state[i] == 'N') {
-            whiteKnights |= 1ULL << i;
-        } else if (state[i] == 'P') {
-            //whitePawns |= 1ULL << i;
-            generatePawnMoves(state.c_str(), moves, i / 8, i % 7, WHITE);
+        switch (state[i]) {
+            case 'P':
+                generatePawnMoves(state.c_str(), moves, i / 8, i % 7, WHITE);
+                break;
+            case 'p':
+                generatePawnMoves(state.c_str(), moves, i / 8, i % 7, BLACK);
+                break;
+
+
         }
     }
 
@@ -294,14 +314,11 @@ void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoar
 
 void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
 
-    Log("white pawn position: row" + std::to_string(row) + " col" + std::to_string(col));
-
     const int direction = (colorAsInt == WHITE) ? -1 : 1;
     const int startRow = (colorAsInt == WHITE) ? 6 : 1;
 
     // one square forward
     if (stateNotation(state, row + direction, col) == '0') {
-        Log("valid !!!");
         addMoveIfValid(state, moves, row, col, row + direction, col, Pawn);
 
         //two squares from start row
