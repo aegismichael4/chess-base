@@ -53,5 +53,8 @@ private:
     BitBoard _knightBitboards[64];
     BitBoard _kingBitboards[64];
 
-    std::vector<BitMove> _moves; 
+    std::vector<BitMove> _moves;
+
+    // test functions
+    void TestStateNotation();
 };

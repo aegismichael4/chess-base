@@ -20,6 +20,22 @@ void Log(std::string info) {
     Logger::GetInstance().LogInfo(info);
 }
 
+void Chess::TestStateNotation() {
+
+    std::string result;
+    result.reserve(72);
+
+    std::string state = stateString();
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            result += stateNotation(state.c_str(), i, j);
+        }
+        result += ' ';
+    }
+
+    Log(result);
+}
+
 char Chess::pieceNotation(int x, int y) const
 {
     const char *wpieces = { "0PNBRQK" };
@@ -61,7 +77,9 @@ void Chess::setUpBoard()
     _grid->initializeSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     
-    generateAllMoves();
+    _moves = generateAllMoves();
+
+    TestStateNotation();
 
     startGame();
 }
@@ -129,6 +147,9 @@ void Chess::CreatePieceAt(int position, const int playerNumber, ChessPiece piece
     BitHolder* holder = _grid->getSquare(position % 8, position / 8);
 
     newBit->setPosition(holder->getPosition());
+    newBit->setParent(holder);
+    newBit->setGameTag(playerNumber ? piece + 128 : piece);
+
     holder->setBit(newBit);
 }
 
@@ -142,8 +163,15 @@ bool Chess::canBitMoveFrom(Bit &bit, BitHolder &src)
     // need to implement friendly/unfriendly in bit so for now this hack
     int currentPlayer = getCurrentPlayer()->playerNumber() * 128;
     int pieceColor = bit.gameTag() & 128;
-    if (pieceColor == currentPlayer) return true;
-    return false;
+    if (pieceColor != currentPlayer) return false;
+
+    ChessSquare *square = (ChessSquare*)&src;
+    if (square) {
+        int index = square->getSquareIndex();
+
+    }
+
+    return true;
 }
 
 bool Chess::canBitMoveFromTo(Bit &bit, BitHolder &src, BitHolder &dst)
@@ -213,16 +241,17 @@ void Chess::setStateString(const std::string &s)
 
 char Chess::stateNotation(const char *state, int row, int col) {
     int index = row * 8 + col;
-    return state[index] - '0';
+    return (state[index] / 32) + 47;
 }
 
 #pragma endregion
 
 void Chess::addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece) {
     if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
-
+        int from = fromRow * 8 + fromCol;
+        int to = toRow * 8 + toCol;
+        moves.emplace_back(from, to, piece);
     }
-
 }
 
 std::vector<BitMove> Chess::generateAllMoves() {
@@ -231,7 +260,7 @@ std::vector<BitMove> Chess::generateAllMoves() {
     moves.reserve(32);
     std::string state = stateString();
 
-    Log(state);
+    Log("state: " + state);
 
     uint64_t whiteKnights = 0LL;
     uint64_t whitePawns = 0LL;
@@ -241,7 +270,7 @@ std::vector<BitMove> Chess::generateAllMoves() {
             whiteKnights |= 1ULL << i;
         } else if (state[i] == 'P') {
             //whitePawns |= 1ULL << i;
-            generatePawnMoves(state.c_str(), moves, i / 8, i&7, WHITE);
+            generatePawnMoves(state.c_str(), moves, i / 8, i % 7, WHITE);
         }
     }
 
@@ -265,11 +294,14 @@ void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoar
 
 void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
 
-    const int direction = (colorAsInt == WHITE) ? 1 : -1;
-    const int startRow = (colorAsInt == WHITE) ? 1 : 6;
+    Log("white pawn position: row" + std::to_string(row) + " col" + std::to_string(col));
+
+    const int direction = (colorAsInt == WHITE) ? -1 : 1;
+    const int startRow = (colorAsInt == WHITE) ? 6 : 1;
 
     // one square forward
     if (stateNotation(state, row + direction, col) == '0') {
+        Log("valid !!!");
         addMoveIfValid(state, moves, row, col, row + direction, col, Pawn);
 
         //two squares from start row
@@ -279,7 +311,7 @@ void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, in
     }
 
     // captures
-    for (int i = -1; i <= 1; i += 2) { // -1 for left, +1 for right
+    for (int i = -1; i <= 1; i += 2) { // -1 for leftmoves, +1 for right
         if (col + i >= 0 && col + i < 8) {
             int oppositeColor = (colorAsInt == 0) ? 1 : -1;
             int pieceColor = stateNotation(state, row + direction, col + i) >= 'a' ? BLACK : WHITE;

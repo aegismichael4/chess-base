@@ -1,3 +1,20 @@
 test
 [info] game starting...
-[info] 0000000000000000000000000000000000000000000000000000000000000000
+[info] state: rnbqkbnrpppppppp00000000000000000000000000000000PPPPPPPPRNBQKBNR
+[info] white pawn position: row6 col6
+[info] valid !!!
+[info] white pawn position: row6 col0
+[info] valid !!!
+[info] white pawn position: row6 col1
+[info] valid !!!
+[info] white pawn position: row6 col2
+[info] valid !!!
+[info] white pawn position: row6 col3
+[info] valid !!!
+[info] white pawn position: row6 col4
+[info] valid !!!
+[info] white pawn position: row6 col5
+[info] valid !!!
+[info] white pawn position: row6 col6
+[info] valid !!!
+[info] 22222222 22222222 00000000 00000000 00000000 00000000 11111111 11111111 
