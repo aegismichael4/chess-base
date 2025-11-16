@@ -181,6 +181,8 @@ bool Chess::checkForDraw()
     return false;
 }
 
+#pragma region STATES
+
 std::string Chess::initialStateString()
 {
     return stateString();
@@ -209,13 +211,27 @@ void Chess::setStateString(const std::string &s)
     });
 }
 
+char Chess::stateNotation(const char *state, int row, int col) {
+    int index = row * 8 + col;
+    return state[index] - '0';
+}
+
+#pragma endregion
+
+void Chess::addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece) {
+    if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
+
+    }
+
+}
+
 std::vector<BitMove> Chess::generateAllMoves() {
 
     std::vector<BitMove> moves;
     moves.reserve(32);
     std::string state = stateString();
 
-    Log(stateString);
+    Log(state);
 
     uint64_t whiteKnights = 0LL;
     uint64_t whitePawns = 0LL;
@@ -224,17 +240,19 @@ std::vector<BitMove> Chess::generateAllMoves() {
         if (state[i] == 'N') {
             whiteKnights |= 1ULL << i;
         } else if (state[i] == 'P') {
-            whitePawns |= 1ULL << i;
+            //whitePawns |= 1ULL << i;
+            generatePawnMoves(state.c_str(), moves, i / 8, i&7, WHITE);
         }
     }
 
-    uint64_t occupancy = whiteKnights | whitePawns;
-    generateKnightMoves(moves, whiteKnights, ~occupancy);
+    //uint64_t occupancy = whiteKnights | whitePawns;
+    //generateKnightMoves(moves, whiteKnights, ~occupancy);
     //generatePawnMoveList(moves, whitePawns, ~occupancy, 1ULL<<17; WHITE);
 
     return moves;
 }
 
+/*
 void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares) {
     knightBoard.forEachBit([&](int fromSquare)) {
         BitBoard moveBitboard = BitBoard(_knightBitboards[fromSquare].getData() & emptySquares); 
@@ -242,4 +260,32 @@ void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoar
             moves.emplace_back(fromSquare, toSquare, Knight);
         });
     });
-}  
+}
+*/
+
+void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
+
+    const int direction = (colorAsInt == WHITE) ? 1 : -1;
+    const int startRow = (colorAsInt == WHITE) ? 1 : 6;
+
+    // one square forward
+    if (stateNotation(state, row + direction, col) == '0') {
+        addMoveIfValid(state, moves, row, col, row + direction, col, Pawn);
+
+        //two squares from start row
+        if (row == startRow && stateNotation( state, row + 2 * direction, col) == '0') {
+            addMoveIfValid(state, moves, row, col, row + 2 * direction, col, Pawn);
+        }
+    }
+
+    // captures
+    for (int i = -1; i <= 1; i += 2) { // -1 for left, +1 for right
+        if (col + i >= 0 && col + i < 8) {
+            int oppositeColor = (colorAsInt == 0) ? 1 : -1;
+            int pieceColor = stateNotation(state, row + direction, col + i) >= 'a' ? BLACK : WHITE;
+            if (pieceColor == oppositeColor) {
+                addMoveIfValid(state, moves, row, col, row + direction, col + i, Pawn);
+            }
+        } 
+    }
+}

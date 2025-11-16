@@ -8,6 +8,8 @@ constexpr int pieceSize = 80;
 typedef uint64_t BitBoard;
 constexpr BitBoard BitZero = 1ULL;
 
+constexpr int WHITE = 0;
+constexpr int BLACK = 1;
 
 class Chess : public Game
 {
@@ -29,11 +31,15 @@ public:
     std::string initialStateString() override;
     std::string stateString() override;
     void setStateString(const std::string &s) override;
+    char stateNotation(const char *state, int row, int col);
 
     Grid* getGrid() override { return _grid; }
 
+    void addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece);
+
     std::vector<BitMove> generateAllMoves();
     void generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares);
+    void generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
 
 
 private:
