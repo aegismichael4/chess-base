@@ -78,8 +78,6 @@ void Chess::setUpBoard()
 
     _grid->initializeSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-
-    TestStateNotation();
     
     _moves = generateAllMoves();
 
@@ -112,8 +110,6 @@ void Chess::FENtoBoard(const std::string& fen) {
 
         } else { // LETTER
             
-            //Logger::GetInstance().LogInfo(isupper(c) ? "true" : "false");
-
             ChessPiece piece = NoPiece;
             switch (ascii % 32) {
 
@@ -333,8 +329,6 @@ std::vector<BitMove> Chess::generateAllMoves() {
 }
 
 void Chess::generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
-
-    //Log("row: " + std::to_string(row) + ", col: " + std::to_string(col));
 
     const int direction = (colorAsInt == WHITE) ? -1 : 1;
     const int startRow = (colorAsInt == WHITE) ? 6 : 1;

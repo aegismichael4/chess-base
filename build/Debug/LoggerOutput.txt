@@ -1,11 +1,17 @@
 test
 [info] game starting...
-[info] 22222222 22222222 00000000 00000000 00000000 00000000 11111111 11111111 
 [info] available moves: 20
 [info] available moves: 20
 [info] available moves: 21
+[info] available moves: 21
+[info] available moves: 23
+[info] available moves: 23
+[info] available moves: 24
+[info] available moves: 28
+[info] available moves: 25
 [info] available moves: 20
-[info] available moves: 22
-[info] available moves: 19
-[info] available moves: 22
-[info] available moves: 22
+[info] available moves: 25
+[info] available moves: 23
+[info] available moves: 26
+[info] available moves: 24
+[info] available moves: 27
