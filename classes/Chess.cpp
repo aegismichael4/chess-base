@@ -276,6 +276,13 @@ int Chess::intNotation(const char *state, int row, int col) {
 
 #pragma endregion
 
+#pragma region MOVE GENERATION
+
+bool moveInsideChessBoard(int row, int col, int rowDelta, int colDelta) {
+
+    return (row + rowDelta >= 0 && row + rowDelta < 8 && col + colDelta >= 0 && col + colDelta < 8);
+}
+
 void Chess::addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece) {
     if (toRow >= 0 && toRow < 8 && toCol >= 0 && toCol < 8) {
         int from = fromRow * 8 + fromCol;
@@ -292,6 +299,12 @@ std::vector<BitMove> Chess::generateAllMoves() {
 
     for (int i = 0; i < 64; i++) {
         switch (state[i]) {
+            case 'K':
+                generateKingMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
+                break;
+            case 'k':
+                generateKingMoves(state.c_str(), moves, i / 8, i % 8, BLACK);
+                break;
             case 'N':
                 generateKnightMoves(state.c_str(), moves, i / 8, i % 8, WHITE);
                 break;
@@ -348,12 +361,31 @@ void Chess::generateKnightMoves(const char *state, std::vector<BitMove>& moves, 
         int rowDelta = knightMoves[i][0];
         int colDelta = knightMoves[i][1];
 
-        if (row + rowDelta >= 0 && row + rowDelta < 8 && col + colDelta >= 0 && col + colDelta < 8) { // move is inside chessboard
+        if (moveInsideChessBoard(row, col, rowDelta, colDelta)) {
 
             int pieceColor = intNotation(state, row + rowDelta, col + colDelta) - 1; // -1 = empty, 0 = WHITE, 1 = BLACK
         
             if (pieceColor != colorAsInt) { // valid, empty square or occupied by opponent square
                 addMoveIfValid(state, moves, row, col, row + rowDelta, col + colDelta, Knight);
+            }
+
+        }
+    }
+}
+
+void Chess::generateKingMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt) {
+
+    for (int rowDelta = -1; rowDelta <= 1; rowDelta++) {
+
+        for (int colDelta = -1; colDelta <= 1; colDelta++) {
+
+            if (moveInsideChessBoard(row, col, rowDelta, colDelta)) {
+
+                int pieceColor = intNotation(state, row + rowDelta, col + colDelta) - 1; // -1 = empty, 0 = WHITE, 1 = BLACK
+        
+                if (pieceColor != colorAsInt) { // valid, empty square or occupied by opponent square
+                    addMoveIfValid(state, moves, row, col, row + rowDelta, col + colDelta, King);
+                }
             }
 
         }
