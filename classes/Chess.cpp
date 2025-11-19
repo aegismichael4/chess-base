@@ -314,7 +314,8 @@ std::vector<BitMove> Chess::generateAllMoves() {
     moves.reserve(32);
     std::string state = stateString();
 
-    Log(state);
+    //Log("state: " + state);
+    //Log(std::to_string(state.length()));
 
     int currPlayer = getCurrentPlayer()->playerNumber();
 
@@ -341,38 +342,41 @@ std::vector<BitMove> Chess::generateAllMoves() {
     for (int i = 0; i < 64; i++) {
 
         char piece = state[i];
-        bool isBlack = piece >= 'a'; // lowercase
 
         if (piece != '0') {
-            if (isBlack) { // lowercase
+
+            //Log(std::to_string(piece));
+
+            bool isBlack = islower(piece);
+            if (isBlack) {
                 blackOccupancy |= 1ULL << i;
             } else {
                 whiteOccupancy |= 1ULL << i;
             }
 
-            switch(int(piece) % 32) {
+            switch(toupper(piece)) {
 
-                case 2: // bishop
+                case 'B':
                     if (isBlack) blackBishops |= 1ULL << i;
                     else whiteBishops |= 1ULL << i;
                     break;
-                case 11: // king
+                case 'K':
                     if (isBlack) blackKing |= 1ULL << i;
                     else whiteKing |= 1ULL << i;
                     break;
-                case 14: // knight
+                case 'N':
                     if (isBlack) blackKnights |= 1ULL << i;
                     else whiteKnights |= 1ULL << i;
                     break;
-                case 16: // pawn
+                case 'P':
                     if (isBlack) blackPawns |= 1ULL << i;
                     else whitePawns |= 1ULL << i;
                     break;
-                case 17: // queen
+                case 'Q':
                     if (isBlack) blackQueens |= 1ULL << i;
                     else whiteQueens |= 1ULL << i;
                     break;
-                case 18: // rook
+                case 'R':
                     if (isBlack) blackRooks |= 1ULL << i;
                     else whiteRooks |= 1ULL << i;
                     break;
@@ -380,7 +384,6 @@ std::vector<BitMove> Chess::generateAllMoves() {
         }
     }
 
-    LogUint64(whitePawns);
     uint64_t allOccupancy = whiteOccupancy | blackOccupancy;
 
     if (currPlayer == BLACK) {
@@ -409,11 +412,11 @@ void Chess::generateWhitePawnMoves(std::vector<BitMove>& moves, BitboardElement 
 
     // single moves
     BitboardElement singleMoves = (pawnBoard.getData() << 8) & emptySquares;
-    addPawnMoves(moves, singleMoves, 8);
+    addPawnMoves(moves, singleMoves, -8);
 
     // double moves
-    BitboardElement doubleMoves = (singleMoves.getData() << 8) & emptySquares;
-    //addPawnMoves(moves, doubleMoves, 16);
+    BitboardElement doubleMoves = ((singleMoves.getData() & ROW_3) << 8) & emptySquares; // only valid single moves forward made into row 3 are eligible
+    addPawnMoves(moves, doubleMoves, -16);
 
     
 }

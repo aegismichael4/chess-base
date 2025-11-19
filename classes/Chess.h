@@ -11,6 +11,9 @@ constexpr BitBoard BitZero = 1ULL;
 constexpr int WHITE = 0;
 constexpr int BLACK = 1;
 
+// for pawn movement
+constexpr uint64_t ROW_3 = 0x0000000000FF0000ULL;
+
 class Chess : public Game
 {
 public:
