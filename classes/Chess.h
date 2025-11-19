@@ -11,8 +11,29 @@ constexpr BitBoard BitZero = 1ULL;
 constexpr int WHITE = 0;
 constexpr int BLACK = 1;
 
-// for pawn movement
+// rows (for bitboard stuff)
+constexpr uint64_t ROW_1 = 0x00000000000000FFULL;
+constexpr uint64_t ROW_2 = 0x000000000000FF00ULL;
 constexpr uint64_t ROW_3 = 0x0000000000FF0000ULL;
+constexpr uint64_t ROW_4 = 0x00000000FF000000ULL;
+constexpr uint64_t ROW_5 = 0x000000FF00000000ULL;
+constexpr uint64_t ROW_6 = 0x0000FF0000000000ULL;
+constexpr uint64_t ROW_7 = 0x00FF000000000000ULL;
+constexpr uint64_t ROW_8 = 0xFF00000000000000ULL;
+
+// cols
+constexpr uint64_t COL_1 = 0x0101010101010101ULL;
+constexpr uint64_t COL_2 = COL_1 << 1;
+constexpr uint64_t COL_3 = COL_1 << 2;
+constexpr uint64_t COL_4 = COL_1 << 3;
+constexpr uint64_t COL_5 = COL_1 << 4;
+constexpr uint64_t COL_6 = COL_1 << 5;
+constexpr uint64_t COL_7 = COL_1 << 6;
+constexpr uint64_t COL_8 = COL_1 << 7;
+
+// precompute for pawn movement
+constexpr uint64_t NOT_COL_1 = ~COL_1;
+constexpr uint64_t NOT_COL_8 = ~COL_8;
 
 class Chess : public Game
 {

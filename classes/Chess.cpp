@@ -411,13 +411,20 @@ void Chess::addPawnMoves(std::vector<BitMove>& moves, BitboardElement pawnMoves,
 void Chess::generateWhitePawnMoves(std::vector<BitMove>& moves, BitboardElement pawnBoard, uint64_t emptySquares, uint64_t blackOccupancy) {
 
     // single moves
-    BitboardElement singleMoves = (pawnBoard.getData() << 8) & emptySquares;
+    BitboardElement singleMoves = (pawnBoard.getData() << 8) & emptySquares; // shift 8 moves up a whole row
     addPawnMoves(moves, singleMoves, -8);
 
     // double moves
     BitboardElement doubleMoves = ((singleMoves.getData() & ROW_3) << 8) & emptySquares; // only valid single moves forward made into row 3 are eligible
     addPawnMoves(moves, doubleMoves, -16);
 
+    // left capture
+    BitboardElement leftCaptures = ((pawnBoard.getData() & NOT_COL_1) << 7) & blackOccupancy; // shift 7 moves up and left. leftmost row can't capture left
+    addPawnMoves(moves, leftCaptures, -7);
+
+    // right capture
+    BitboardElement rightCapture = ((pawnBoard.getData() & NOT_COL_8) << 9) & blackOccupancy; // shift 9 moves up and right. rightmost row can't capture right
+    addPawnMoves(moves, rightCapture, -9);
     
 }
 
