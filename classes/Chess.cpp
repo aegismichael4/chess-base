@@ -86,11 +86,13 @@ void Chess::GenerateAllBitboards() {
 
 void Chess::setUpBoard()
 {
+
     setNumberOfPlayers(2);
     _gameOptions.rowX = 8;
     _gameOptions.rowY = 8;
 
-    _grid->initializeSquares(pieceSize, "boardsquare.png");
+
+    _grid->initializeChessSquares(pieceSize, "boardsquare.png");
     FENtoBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
     GenerateAllBitboards();
@@ -111,54 +113,57 @@ void Chess::FENtoBoard(const std::string& fen) {
     // 4: en passant target square (in algebraic notation, or -)
     // 5: halfmove clock (number of halfmoves since the last capture or pawn advance)
 
-    int boardPos = 0;
-    
-    for (int i = 0; i < fen.length(); i++) {
+    _grid->forEachSquare([] (ChessSquare* square, int x, int y) {
+        square->setBit(nullptr);
+    });
 
-        char c = fen[i];
-        if (c == '/') continue; // end of row
+    int row = 7;
+    int col = 0;
 
-        int ascii = int(c);
-        if (ascii >= 48 && ascii <= 57) { // NUMBER
+    for (char c : fen) {
 
-            boardPos += ascii - 48; //  char '1' should add 1 to board position, '6' should add 6, etc.
-            continue;
+        if (c == '/') { // move up a row
+            row--;
+            col = 0;
+
+        } else if (isdigit(c)) { // NUMBER
+            col += c - '0'; // move to the right by that many 
 
         } else { // LETTER
-            
-            ChessPiece piece = NoPiece;
-            switch (ascii % 32) {
 
-                case 2:
+            ChessPiece piece = NoPiece;
+            switch (toupper(c)) {
+                case 'B':
                     piece = Bishop;
                     break;
-                case 11:
+                case 'K':
                     piece = King;
                     break;
-                case 14:
+                case 'N':
                     piece = Knight;
                     break;
-                case 16:
+                case 'P':
                     piece = Pawn;
                     break;
-                case 17:
+                case 'Q':
                     piece = Queen;
                     break;
-                case 18:
+                case 'R':
                     piece = Rook;
                     break;
             }
             int playerNum = !isupper(c);
-            CreatePieceAt(boardPos, playerNum, piece);
-            boardPos++;
+            //Log("row: " + std::to_string(row) + ", col: " + std::to_string(col));
+            CreatePieceAt(row, col, playerNum, piece);
+            col++;
         }
     }
 }
 
-void Chess::CreatePieceAt(int position, const int playerNumber, ChessPiece piece) {
+void Chess::CreatePieceAt(int row, int col, const int playerNumber, ChessPiece piece) {
 
     Bit* newBit = PieceForPlayer(playerNumber, piece);
-    BitHolder* holder = _grid->getSquare(position % 8, position / 8);
+    BitHolder* holder = _grid->getSquare(col, row);
 
     newBit->setPosition(holder->getPosition());
     newBit->setParent(holder);
@@ -309,6 +314,8 @@ std::vector<BitMove> Chess::generateAllMoves() {
     moves.reserve(32);
     std::string state = stateString();
 
+    Log(state);
+
     int currPlayer = getCurrentPlayer()->playerNumber();
 
     // white pieces
@@ -342,43 +349,45 @@ std::vector<BitMove> Chess::generateAllMoves() {
             } else {
                 whiteOccupancy |= 1ULL << i;
             }
-        }
 
-        switch(int(piece) % 32) {
+            switch(int(piece) % 32) {
 
-            case 2: // bishop
-                if (isBlack) blackBishops |= 1ULL << i;
-                else whiteBishops |= 1ULL << i;
-                break;
-            case 11: // king
-                if (isBlack) blackKing |= 1ULL << i;
-                else whiteKing |= 1ULL << i;
-                break;
-            case 14: // knight
-                if (isBlack) blackKnights |= 1ULL << i;
-                else whiteKnights |= 1ULL << i;
-                break;
-            case 16: // pawn
-                if (isBlack) blackPawns |= 1ULL << i;
-                else whitePawns |= 1ULL << i;
-                break;
-            case 17: // queen
-                if (isBlack) blackQueens |= 1ULL << i;
-                else whiteQueens |= 1ULL << i;
-                break;
-            case 18: // rook
-                if (isBlack) blackRooks |= 1ULL << i;
-                else whiteRooks |= 1ULL << i;
-                break;
+                case 2: // bishop
+                    if (isBlack) blackBishops |= 1ULL << i;
+                    else whiteBishops |= 1ULL << i;
+                    break;
+                case 11: // king
+                    if (isBlack) blackKing |= 1ULL << i;
+                    else whiteKing |= 1ULL << i;
+                    break;
+                case 14: // knight
+                    if (isBlack) blackKnights |= 1ULL << i;
+                    else whiteKnights |= 1ULL << i;
+                    break;
+                case 16: // pawn
+                    if (isBlack) blackPawns |= 1ULL << i;
+                    else whitePawns |= 1ULL << i;
+                    break;
+                case 17: // queen
+                    if (isBlack) blackQueens |= 1ULL << i;
+                    else whiteQueens |= 1ULL << i;
+                    break;
+                case 18: // rook
+                    if (isBlack) blackRooks |= 1ULL << i;
+                    else whiteRooks |= 1ULL << i;
+                    break;
+            }
         }
     }
 
+    LogUint64(whitePawns);
     uint64_t allOccupancy = whiteOccupancy | blackOccupancy;
 
     if (currPlayer == BLACK) {
         generateKnightMoves(moves, blackKnights, ~blackOccupancy);
         generateKingMoves(moves, blackKing, ~blackOccupancy);
     } else {
+        generateWhitePawnMoves(moves, whitePawns, ~allOccupancy, blackOccupancy);
         generateKnightMoves(moves, whiteKnights, ~whiteOccupancy);
         generateKingMoves(moves, whiteKing, ~whiteOccupancy);
     }
@@ -386,6 +395,27 @@ std::vector<BitMove> Chess::generateAllMoves() {
     Log("available moves: " + std::to_string(moves.size()));
 
     return moves;
+}
+
+void Chess::addPawnMoves(std::vector<BitMove>& moves, BitboardElement pawnMoves, int shift) {
+    
+    pawnMoves.forEachBit([&] (int toSquare) {
+        int fromSquare = toSquare + shift;
+        moves.emplace_back(fromSquare, toSquare, Pawn);
+    });
+}
+
+void Chess::generateWhitePawnMoves(std::vector<BitMove>& moves, BitboardElement pawnBoard, uint64_t emptySquares, uint64_t blackOccupancy) {
+
+    // single moves
+    BitboardElement singleMoves = (pawnBoard.getData() << 8) & emptySquares;
+    addPawnMoves(moves, singleMoves, 8);
+
+    // double moves
+    BitboardElement doubleMoves = (singleMoves.getData() << 8) & emptySquares;
+    //addPawnMoves(moves, doubleMoves, 16);
+
+    
 }
 
 void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t availableSquares) {
@@ -441,7 +471,7 @@ void Chess::clearBoardHighlights() {
 
 #pragma endregion
 
-#pragma region GenerateBitboards
+#pragma region Bitboard Generation
 
 BitboardElement Chess::generateKnightBitboards(int square) {
     BitboardElement result = 0LL;

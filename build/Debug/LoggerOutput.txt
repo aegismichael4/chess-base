@@ -1,19 +1,5 @@
 test
 [info] game starting...
-[info] available moves: 4
-[info] available moves: 4
-[info] available moves: 7
-[info] available moves: 7
-[info] available moves: 8
-[info] available moves: 8
-[info] available moves: 10
-[info] available moves: 10
-[info] available moves: 8
-[info] available moves: 8
-[info] available moves: 11
-[info] available moves: 11
-[info] available moves: 10
-[info] available moves: 6
-[info] available moves: 5
-[info] available moves: 8
-[info] available moves: 9
+[info] RNBQKBNRPPPPPPPP00000000000000000000000000000000pppppppprnbqkbnr
+[info] 0000000000000000000000000000000000000000000000001111111100000000
+[info] available moves: 12

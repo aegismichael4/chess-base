@@ -43,7 +43,7 @@ public:
 
 private:
     Bit* PieceForPlayer(const int playerNumber, ChessPiece piece);
-    void CreatePieceAt(int position, const int playerNumber, ChessPiece piece);
+    void CreatePieceAt(int row, int col, const int playerNumber, ChessPiece piece);
     Player* ownerAt(int x, int y) const;
     void FENtoBoard(const std::string& fen);
     char pieceNotation(int x, int y) const;
@@ -72,7 +72,11 @@ private:
     // move generation
     void addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece);
     std::vector<BitMove> generateAllMoves();
-    void generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
+
+    void addPawnMoves(std::vector<BitMove>& moves, BitboardElement pawnMoves, int shift);
+    void generateWhitePawnMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t emptySquares, uint64_t blackOccupancy);
+    void generateBlackPawnMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t emptySquares, uint64_t whiteOccupancy);
+
     void generateKnightMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t availableSquares);
     void generateKingMoves(std::vector<BitMove>& moves, BitboardElement kingBoard, uint64_t availableSquares);
 
