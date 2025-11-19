@@ -38,14 +38,6 @@ public:
 
     Grid* getGrid() override { return _grid; }
 
-    void addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece);
-
-    std::vector<BitMove> generateAllMoves();
-    void generateKnightMoves(std::vector<BitMove>& moves, BitBoard knightBoard, uint64_t emptySquares);
-    void generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
-    void generateKnightMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
-    void generateKingMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
-
     void findDropTarget(ImVec2 &pos) override;
     void clearBoardHighlights() override;
 
@@ -57,10 +49,32 @@ private:
     char pieceNotation(int x, int y) const;
 
     Grid* _grid;
-    BitBoard _knightBitboards[64];
-    BitBoard _kingBitboards[64];
 
     std::vector<BitMove> _moves;
+
+    // bitboards
+    BitboardElement _pawnBitboards[64];
+    BitboardElement _rookBitboards[64];
+    BitboardElement _knightBitboards[64];
+    BitboardElement _bishopBitboards[64];
+    BitboardElement _queenBitboards[64];
+    BitboardElement _kingBitboards[64];
+
+    // bitboard generation
+    void GenerateAllBitboards();
+    BitboardElement generatePawnBitboards(int square);
+    BitboardElement generateRookBitboards(int square);    
+    BitboardElement generateKnightBitboards(int square);
+    BitboardElement generateBishopBitboards(int square);
+    BitboardElement generateQueenBitboards(int square);
+    BitboardElement generateKingBitboards(int square);
+
+    // move generation
+    void addMoveIfValid(const char *state, std::vector<BitMove>& moves, int fromRow, int fromCol, int toRow, int toCol, ChessPiece piece);
+    std::vector<BitMove> generateAllMoves();
+    void generatePawnMoves(const char *state, std::vector<BitMove>& moves, int row, int col, int colorAsInt);
+    void generateKnightMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t availableSquares);
+    void generateKingMoves(std::vector<BitMove>& moves, BitboardElement kingBoard, uint64_t availableSquares);
 
     // test functions
     void TestStateNotation();
