@@ -387,6 +387,7 @@ std::vector<BitMove> Chess::generateAllMoves() {
     uint64_t allOccupancy = whiteOccupancy | blackOccupancy;
 
     if (currPlayer == BLACK) {
+        generateBlackPawnMoves(moves, blackPawns, ~allOccupancy, whiteOccupancy);
         generateKnightMoves(moves, blackKnights, ~blackOccupancy);
         generateKingMoves(moves, blackKing, ~blackOccupancy);
     } else {
@@ -425,6 +426,26 @@ void Chess::generateWhitePawnMoves(std::vector<BitMove>& moves, BitboardElement 
     // right capture
     BitboardElement rightCapture = ((pawnBoard.getData() & NOT_COL_8) << 9) & blackOccupancy; // shift 9 moves up and right. rightmost row can't capture right
     addPawnMoves(moves, rightCapture, -9);
+
+}
+
+void Chess::generateBlackPawnMoves(std::vector<BitMove>& moves, BitboardElement pawnBoard, uint64_t emptySquares, uint64_t whiteOccupancy) {
+
+    // single moves
+    BitboardElement singleMoves = (pawnBoard.getData() >> 8) & emptySquares; // back shift 8 moves down a whole row
+    addPawnMoves(moves, singleMoves, 8);
+
+    // double moves
+    BitboardElement doubleMoves = ((singleMoves.getData() & ROW_6) >> 8) & emptySquares; // only valid single moves forward made into row 6 are eligible
+    addPawnMoves(moves, doubleMoves, 16);
+
+    // left capture
+    BitboardElement leftCaptures = ((pawnBoard.getData() & NOT_COL_1) >> 9) & whiteOccupancy; // shift 9 moves down and left. leftmost row can't capture left
+    addPawnMoves(moves, leftCaptures, 9);
+
+    // right capture
+    BitboardElement rightCapture = ((pawnBoard.getData() & NOT_COL_8) >> 7) & whiteOccupancy; // shift 7 moves down and right. rightmost row can't capture right
+    addPawnMoves(moves, rightCapture, 7);
     
 }
 

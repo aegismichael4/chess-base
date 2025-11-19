@@ -1,12 +1,19 @@
 test
 [info] game starting...
 [info] available moves: 20
-[info] available moves: 4
-[info] available moves: 21
-[info] available moves: 7
-[info] available moves: 21
-[info] available moves: 8
 [info] available moves: 20
-[info] available moves: 5
 [info] available moves: 20
-[info] available moves: 0
+[info] available moves: 20
+[info] available moves: 17
+[info] available moves: 20
+[info] available moves: 16
+[info] available moves: 19
+[info] available moves: 16
+[info] available moves: 19
+[info] available moves: 16
+[info] available moves: 19
+[info] available moves: 16
+[info] available moves: 18
+[info] available moves: 14
+[info] available moves: 17
+[info] available moves: 14
