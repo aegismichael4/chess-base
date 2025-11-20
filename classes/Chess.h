@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "Grid.h"
 #include "Bitboard.h"
+#include "MagicBitboards.h"
 
 constexpr int pieceSize = 80;
 typedef uint64_t BitBoard;
@@ -102,6 +103,9 @@ private:
     void generateBlackPawnMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t emptySquares, uint64_t whiteOccupancy);
 
     void generateKnightMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t availableSquares);
+    void generateRookMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares, uint64_t blockedSquares);
+    void generateBishopMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares);
+    void generateQueenMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares);
     void generateKingMoves(std::vector<BitMove>& moves, BitboardElement kingBoard, uint64_t availableSquares);
 
     // test functions

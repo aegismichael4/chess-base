@@ -827,6 +827,8 @@ static inline uint64_t getQueenAttacks(int square, uint64_t occupied) {
     return getRookAttacks(square, occupied) | getBishopAttacks(square, occupied);
 }
 
+/*
+
 // Initialize magic bitboards
 void initMagicBitboards(void) {
     int square, i;
@@ -869,5 +871,7 @@ void cleanupMagicBitboards(void) {
         delete[] BAttacks[square];
     }
 }
+
+*/
 
 #endif // MAGIC_BITBOARDS_H

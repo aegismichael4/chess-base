@@ -388,10 +388,12 @@ std::vector<BitMove> Chess::generateAllMoves() {
 
     if (currPlayer == BLACK) {
         generateBlackPawnMoves(moves, blackPawns, ~allOccupancy, whiteOccupancy);
+        generateRookMoves(moves, blackRooks, ~blackOccupancy, allOccupancy);
         generateKnightMoves(moves, blackKnights, ~blackOccupancy);
         generateKingMoves(moves, blackKing, ~blackOccupancy);
     } else {
         generateWhitePawnMoves(moves, whitePawns, ~allOccupancy, blackOccupancy);
+        generateRookMoves(moves, whiteRooks, ~whiteOccupancy, allOccupancy);
         generateKnightMoves(moves, whiteKnights, ~whiteOccupancy);
         generateKingMoves(moves, whiteKing, ~whiteOccupancy);
     }
@@ -447,6 +449,16 @@ void Chess::generateBlackPawnMoves(std::vector<BitMove>& moves, BitboardElement 
     BitboardElement rightCapture = ((pawnBoard.getData() & NOT_COL_8) >> 7) & whiteOccupancy; // shift 7 moves down and right. rightmost row can't capture right
     addPawnMoves(moves, rightCapture, 7);
     
+}
+
+void Chess::generateRookMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares, uint64_t blockedSquares) {
+    rookBoard.forEachBit([&] (int fromSquare) {
+        BitboardElement moveBitboard = BitboardElement(ratt(fromSquare, blockedSquares) & availableSquares);
+        LogUint64(moveBitboard.getData());
+        moveBitboard.forEachBit( [&] (int toSquare) {
+            moves.emplace_back(fromSquare, toSquare, Rook);
+        });
+    });
 }
 
 void Chess::generateKnightMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t availableSquares) {
