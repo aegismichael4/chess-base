@@ -104,8 +104,8 @@ private:
 
     void generateKnightMoves(std::vector<BitMove>& moves, BitboardElement knightBoard, uint64_t availableSquares);
     void generateRookMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares, uint64_t blockedSquares);
-    void generateBishopMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares);
-    void generateQueenMoves(std::vector<BitMove>& moves, BitboardElement rookBoard, uint64_t availableSquares);
+    void generateBishopMoves(std::vector<BitMove>& moves, BitboardElement bishopBoard, uint64_t availableSquares, uint64_t blockedSquares);
+    void generateQueenMoves(std::vector<BitMove>& moves, BitboardElement queenBoard, uint64_t availableSquares, uint64_t blockedSquares);
     void generateKingMoves(std::vector<BitMove>& moves, BitboardElement kingBoard, uint64_t availableSquares);
 
     // test functions
